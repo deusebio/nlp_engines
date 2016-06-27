@@ -1,5 +1,7 @@
 package com.intesasanpaolo.bip.stanfordNLP
 
+import com.intesasanpaolo.bip.NamedEntity
+
 import scala.collection.JavaConversions._
 import edu.stanford.nlp.simple.{Document, Sentence}
 

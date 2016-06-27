@@ -21,6 +21,4 @@ package object stanfordNLP {
 
   }
 
-  case class NamedEntity(name: String, category: String,  val uniqueIdentifier: String="")
-
 }

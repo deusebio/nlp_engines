@@ -2,6 +2,7 @@ package com.intesasanpaolo.bip.opennlp
 
 import java.io.File
 
+import com.intesasanpaolo.bip.NamedEntity
 import com.intesasanpaolo.bip.opennlp.lemmatizers.SimpleLemmatizer
 import opennlp.tools.cmdline.postag.POSModelLoader
 import opennlp.tools.lemmatizer.DictionaryLemmatizer
@@ -17,7 +18,7 @@ class Document(val text: String, sentenceDetector: SentenceDetector = Defaults.s
   def sentences() = sentenceDetector.sentDetect(text).map(new Sentence(_))
 }
 
-case class Entity(val kind: String, val token: String, val score: Double)
+// case class Entity(val kind: String, val token: String, val score: Double)
 
 class Sentence(val text: String,
                val tokenizer: Tokenizer = Defaults.tokenizer,
@@ -35,12 +36,12 @@ class Sentence(val text: String,
     lemmatizer.lemmatize(token.token.toLowerCase, token.tag)
   )
 
-  def ner(): List[Entity] = {
+  def ner(): List[NamedEntity] = {
     val wordList: Array[String] = words()
     for ( typeNER <- nerTagger.mapValues( _.find(wordList)).toList;
           span <- typeNER._2
-    ) yield Entity(span.getType, wordList.slice(span.getStart(), span.getEnd()).mkString(" "), span.getProb())
-
+    ) yield // Entity(span.getType, wordList.slice(span.getStart(), span.getEnd()).mkString(" "), span.getProb())
+      NamedEntity(wordList.slice(span.getStart(), span.getEnd()).mkString(" "), span.getType)
   }
 
 }
@@ -55,30 +56,29 @@ object Defaults {
   private val defaultDictionaryLemmatizer = "lemmatizer-dicts/language-tool/en-lemmatizer.txt"
 
   private val defaultNERFilenames = Map(
-    "date" -> "ner/en-ner-date.bin",
+    //"date" -> "ner/en-ner-date.bin",
     "location" -> "ner/en-ner-location.bin",
-    "money" -> "ner/en-ner-money.bin",
+    //"money" -> "ner/en-ner-money.bin",
     "organization" -> "ner/en-ner-organization.bin",
-    "percentage" -> "ner/en-ner-percentage.bin",
-    "person" -> "ner/en-ner-person.bin",
-    "time" -> "ner/en-ner-time.bin"
+    //"percentage" -> "ner/en-ner-percentage.bin",
+    "person" -> "ner/en-ner-person.bin"//, "time" -> "ner/en-ner-time.bin"
   )
 
-  val sentenceDetector = new SentenceDetectorME(
+  lazy val sentenceDetector = new SentenceDetectorME(
     new SentenceModel(readFileOpenNLP(defaultResourcePath + defaultSentenceDetectorFilename))
   )
 
-  val tokenizer: Tokenizer = new TokenizerME(
+  lazy val tokenizer: Tokenizer = new TokenizerME(
     new TokenizerModel(readFileOpenNLP(defaultResourcePath + defaultTokenizerFilename))
   )
 
-  val tagger: POSTaggerME = new POSTaggerME(
+  lazy val tagger: POSTaggerME = new POSTaggerME(
     new POSModelLoader().load(new File(getResource(defaultResourcePath + defaultPOSTaggerFilename)))
   )
 
-  val lemmatizer = SimpleLemmatizer.fit(defaultResourcePath + defaultDictionaryLemmatizer)
+  lazy val lemmatizer = SimpleLemmatizer.fit(defaultResourcePath + defaultDictionaryLemmatizer)
 
-  val nerModels = defaultNERFilenames.mapValues({ case filename =>
+  lazy val nerModels = defaultNERFilenames.mapValues({ case filename =>
     new TokenNameFinderModel(readFileOpenNLP(defaultResourcePath + filename))
   })
 
