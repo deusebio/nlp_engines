@@ -8,6 +8,7 @@ val log4jVersion = "1.2.17"
 val stanfordVersion = "3.6.0"
 
 libraryDependencies ++= Seq(
+  "org.scalaz" %% "scalaz-core" % "7.2.4",
   "org.apache.opennlp" % "opennlp-tools" % "1.6.0",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.6.0",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.6.0" classifier "models",

@@ -1,14 +1,20 @@
 package com.intesasanpaolo.bip
 
 import java.io.File
+import java.util
 
-import opennlp.{SerializableTasks => OpenNLPTasks}
-import stanfordNLP.{serializableTasks => StanfordNLPTasks}
+import com.intesasanpaolo.bip.stanfordNLP.CoreNlpEntityExtractor.extractEntitiesFromText
+import com.intesasanpaolo.bip.opennlp.{SerializableTasks => OpenNLPTasks}
+import com.intesasanpaolo.bip.opennlp.{Document => OpenDocument}
+
+import com.intesasanpaolo.bip.stanfordNLP.{serializableTasks => StanfordNLPTasks, NamedEntity}
+
+import edu.stanford.nlp.simple.{Document => StanDocument, Sentence}
 
 import com.github.tototoshi.csv._
 
 
-object TestNLPs extends App{
+object CoreNLPs extends App{
 
   implicit object MyFormat extends DefaultCSVFormat {
     override val delimiter = ';'
@@ -45,11 +51,31 @@ object TestNLPs extends App{
   println(openLemmas.mkString(", "))
   println(" ")
 
-
   println("StanfordNLP")
   println("-------")
   println(" ")
   println(stanLemmas.mkString(", "))
   println(" ")
 
+
+
 }
+
+object TestNER extends App {
+
+  val test = "Barack Obama is my favorite hero after Mickey Mouse. The president of the United States is a joke. Bill Gates has had similar problems."
+
+  val sDocument = new StanDocument(test)
+  val sEntities: Seq[NamedEntity] = extractEntitiesFromText(test)
+
+  val oDocument = new OpenDocument(test)
+  val oEntities = oDocument.sentences().flatMap(_.ner()).toList
+
+  oEntities.foreach(println)
+  println("----------------")
+  sEntities.foreach(println)
+
+}
+
+
+
