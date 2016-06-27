@@ -1,7 +1,6 @@
 package com.intesasanpaolo.bip
 
 import java.io.File
-import java.util
 
 import com.intesasanpaolo.bip.stanfordNLP.CoreNlpEntityExtractor.extractEntitiesFromText
 import com.intesasanpaolo.bip.opennlp.{SerializableTasks => OpenNLPTasks}
@@ -9,10 +8,10 @@ import com.intesasanpaolo.bip.opennlp.{Document => OpenDocument}
 
 import com.intesasanpaolo.bip.stanfordNLP.{serializableTasks => StanfordNLPTasks, NamedEntity}
 
-import edu.stanford.nlp.simple.{Document => StanDocument, Sentence}
+import edu.stanford.nlp.simple.{Document => StanDocument}
+import com.intesasanpaolo.bip.scalanlp.{Document => ScDocument, Sentence}
 
 import com.github.tototoshi.csv._
-
 
 object CoreNLPs extends App{
 
@@ -65,15 +64,33 @@ object TestNER extends App {
 
   val test = "Barack Obama is my favorite hero after Mickey Mouse. The president of the United States is a joke. Bill Gates has had similar problems."
 
+
+  println("Stanford")
+  val ts = System.nanoTime()
   val sDocument = new StanDocument(test)
   val sEntities: Seq[NamedEntity] = extractEntitiesFromText(test)
+  println(" Execution Time: " + ( (System.nanoTime()-ts) / 1E9 ) )
+  println("")
 
+  println("OpenNLP")
+  val to = System.nanoTime()
   val oDocument = new OpenDocument(test)
   val oEntities = oDocument.sentences().flatMap(_.ner()).toList
+  println(" Execution Time: " + ( (System.nanoTime()-ts) / 1E9 ) )
+  println("")
+
+  println("ScalaNLP")
+  val tsc = System.nanoTime()
+  val scDocument = new ScDocument(test)
+  val scEntities = scDocument.sentences().toList.map(_.ner())
+  println(" Execution Time: " + ( (System.nanoTime()-tsc) / 1E9 ) )
+  println("")
 
   oEntities.foreach(println)
   println("----------------")
   sEntities.foreach(println)
+  println("----------------")
+  scEntities.map(_.render).foreach(println)
 
 }
 
